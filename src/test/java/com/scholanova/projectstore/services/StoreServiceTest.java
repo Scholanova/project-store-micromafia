@@ -60,4 +60,55 @@ class StoreServiceTest {
         verify(storeRepository, atLeastOnce()).create(correctStore);
         assertThat(returnedStore).isEqualTo(savedStore);
     }
+    
+    @Test
+    void givenCorrectStore_whenUpdated_updateStoreInRepository() throws Exception {
+        // GIVEN
+        Integer id = 1234;
+        String name = "BHV";
+
+        Store correctStore = new Store(id, name);
+        Store savedStore = new Store(id, name);
+        when(storeRepository.update(id, name)).thenReturn(savedStore);
+
+        // WHEN
+        Store returnedStore = storeService.update(correctStore);
+
+        // THEN
+        verify(storeRepository, atLeastOnce()).update(id, name);
+        assertThat(returnedStore).isEqualTo(savedStore);
+    }
+    
+    @Test
+    void givenIncorrectStore_whenUpdated_updateStoreInRepository() throws Exception {
+        // GIVEN
+        Integer id = 1234;
+        String name = "";
+
+        Store correctStore = new Store(id, name);
+        Store savedStore = new Store(id, name);
+        when(storeRepository.update(id, name)).thenReturn(savedStore);
+
+        // WHEN
+        Store returnedStore = storeService.update(correctStore);
+
+        // THEN
+        verify(storeRepository, atLeastOnce()).update(id, name);
+        assertThat(returnedStore).isEqualTo(savedStore);
+    }
+    
+    @Test
+    void givenCorrectStore_whenDeleted_updateStoreInRepository() throws Exception {
+        // GIVEN
+        Integer id = 1234;
+        
+        when(storeRepository.deletebyid(id)).thenReturn(true);
+
+        // WHEN
+        Boolean returnedStore = storeService.deleteStore(id);
+
+        // THEN
+        verify(storeRepository, atLeastOnce()).deletebyid(id);
+        assertThat(returnedStore).isEqualTo(true);
+    }
 }

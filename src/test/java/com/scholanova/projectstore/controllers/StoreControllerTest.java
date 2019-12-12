@@ -20,8 +20,7 @@ import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
-import static org.springframework.http.HttpStatus.OK;
-
+import static org.springframework.http.HttpStatus.*;
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("test")
@@ -37,7 +36,10 @@ class StoreControllerTest {
 
     @Captor
     ArgumentCaptor<Store> createStoreArgumentCaptor;
-
+    @Captor
+    ArgumentCaptor<Store> updateStoreArgumentCaptor;
+    @Captor
+    ArgumentCaptor<Integer> DeleteArgumentCaptor;
     @Nested
     class Test_createStore {
 
@@ -77,5 +79,72 @@ class StoreControllerTest {
             Store storeToCreate = createStoreArgumentCaptor.getValue();
             assertThat(storeToCreate.getName()).isEqualTo("Boulangerie");
         }
+        
+        @Test
+        void givenCorrectBody_whenCalled_updatestore() throws Exception {
+            // given
+            String url = "http://localhost:{port}/stores";
+
+            Map<String, String> urlVariables = new HashMap<>();
+            urlVariables.put("port", String.valueOf(port));
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            String requestJson = "{" +
+            		"\"id\":123," +
+                    "\"name\":\"Patisserie\"" +
+                    "}";
+            HttpEntity<String> httpEntity = new HttpEntity<>(requestJson, headers);
+
+            Store createdStore = new Store(123, "Patisserie");
+            when(storeService.update(updateStoreArgumentCaptor.capture())).thenReturn(createdStore);
+
+            // When
+            ResponseEntity responseEntity = template.exchange(url,
+                    HttpMethod.PUT,
+                    httpEntity,
+                    String.class,
+                    urlVariables);
+
+            // Then
+            assertThat(responseEntity.getStatusCode()).isEqualTo(OK);
+            assertThat(responseEntity.getBody()).isEqualTo(
+                    "{" +
+                            "\"id\":123," +
+                            "\"name\":\"Patisserie\"" +
+                            "}"
+            );
+            Store storeToCreate = updateStoreArgumentCaptor.getValue();
+            assertThat(storeToCreate.getName()).isEqualTo("Patisserie");
+        }
+        
+        @Test
+        void givenCorrectBody_whenCalled_Deletestore() throws Exception {
+            // given
+            String url = "http://localhost:{port}/stores/{id}";
+
+            Map<String, String> urlVariables = new HashMap<>();
+            urlVariables.put("port", String.valueOf(port));
+            urlVariables.put("id", String.valueOf(123));
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            HttpEntity<String> httpEntity = new HttpEntity<>(headers);
+
+            boolean createdStore = true;
+            when(storeService.deleteStore(DeleteArgumentCaptor.capture())).thenReturn(createdStore);
+
+            // When
+            ResponseEntity responseEntity = template.exchange(url,
+                    HttpMethod.DELETE,
+                    httpEntity,
+                    String.class,
+                    urlVariables);
+
+            // Then
+            assertThat(responseEntity.getStatusCode()).isEqualTo(NO_CONTENT);
+            Integer idtoDelete = DeleteArgumentCaptor.getValue();
+            assertThat(idtoDelete).isEqualTo(123);
+        }
+        
     }
 }

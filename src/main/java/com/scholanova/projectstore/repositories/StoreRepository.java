@@ -2,6 +2,8 @@ package com.scholanova.projectstore.repositories;
 
 import com.scholanova.projectstore.exceptions.ModelNotFoundException;
 import com.scholanova.projectstore.models.Store;
+
+import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
@@ -57,5 +59,26 @@ public class StoreRepository {
         } catch (ModelNotFoundException e) {
             return null;
         }
+    }
+    
+    
+    public boolean deletebyid(Integer id) throws DataAccessException, ModelNotFoundException {
+    	String query = "DELETE FROM STORES "  +
+                "WHERE ID = :id";
+
+        Map<String, Object> parameters = new HashMap<>();
+        parameters.put("id", id);
+        return jdbcTemplate.update(query, parameters) == 1;
+    }
+    
+    public Store update(Integer id, String name) throws DataAccessException, ModelNotFoundException {
+    	String query = "UPDATE STORES SET NAME = :name "  +
+                "WHERE ID = :id";
+
+        Map<String, Object> parameters = new HashMap<>();
+        parameters.put("id", id);
+        parameters.put("name", name);
+        jdbcTemplate.update(query, parameters);
+        return this.getById(id);
     }
 }
