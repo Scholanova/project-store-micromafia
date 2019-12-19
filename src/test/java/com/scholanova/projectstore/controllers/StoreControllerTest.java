@@ -40,6 +40,9 @@ class StoreControllerTest {
     ArgumentCaptor<Store> updateStoreArgumentCaptor;
     @Captor
     ArgumentCaptor<Integer> DeleteArgumentCaptor;
+    @Captor
+    ArgumentCaptor<Integer> calculateArgumentCaptor;
+    
     @Nested
     class Test_createStore {
 
@@ -146,5 +149,33 @@ class StoreControllerTest {
             assertThat(idtoDelete).isEqualTo(123);
         }
         
+        @Test
+        void givenCorrectId_return_correctValue() throws Exception {
+            // given
+            String url = "http://localhost:{port}/stores/{id}/inventory_value";
+
+            Map<String, String> urlVariables = new HashMap<>();
+            urlVariables.put("port", String.valueOf(port));
+            urlVariables.put("id", String.valueOf(123));
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            HttpEntity<String> httpEntity = new HttpEntity<>(headers);
+
+            long returned_value = 3;
+			when(storeService.calculate_inventory(calculateArgumentCaptor.capture())).thenReturn(returned_value);
+
+            // When
+            ResponseEntity responseEntity = template.exchange(url,
+                    HttpMethod.GET,
+                    httpEntity,
+                    String.class,
+                    urlVariables);
+
+            // Then
+            assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
+            Integer idtoDelete = calculateArgumentCaptor.getValue();
+            assertThat(idtoDelete).isEqualTo(123);
+            assertThat(responseEntity.getBody()).isEqualTo("3");
+        }
     }
 }

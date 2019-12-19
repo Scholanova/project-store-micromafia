@@ -1,14 +1,16 @@
 package com.scholanova.projectstore.services;
 
-import com.scholanova.projectstore.exceptions.ModelNotFoundException;
-import com.scholanova.projectstore.exceptions.StoreNameCannotBeEmptyException;
-import com.scholanova.projectstore.models.Store;
-import com.scholanova.projectstore.repositories.StoreRepository;
+import java.util.ArrayList;
 
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
 
-@Service
+import com.scholanova.projectstore.exceptions.ModelNotFoundException;
+import com.scholanova.projectstore.exceptions.StoreNameCannotBeEmptyException;
+import com.scholanova.projectstore.models.Stock;
+import com.scholanova.projectstore.models.Store;
+import com.scholanova.projectstore.repositories.StoreRepository;
+;@Service
 public class StoreService {
 
     private StoreRepository storeRepository;
@@ -43,4 +45,13 @@ public class StoreService {
     {
     	return this.storeRepository.update(store.getId(), store.getName());
     }
+	public long calculate_inventory(Integer id) throws ModelNotFoundException {
+		ArrayList<Stock> ar = (ArrayList<Stock>) this.storeRepository.getByStoreId(id);
+		System.err.println(ar.size());
+		long total = 0;
+		for(Stock s : ar){
+			total += s.getValue();
+		}
+		return total;
+	}
 }

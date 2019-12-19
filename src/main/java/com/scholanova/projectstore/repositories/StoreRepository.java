@@ -1,6 +1,7 @@
 package com.scholanova.projectstore.repositories;
 
 import com.scholanova.projectstore.exceptions.ModelNotFoundException;
+import com.scholanova.projectstore.models.Stock;
 import com.scholanova.projectstore.models.Store;
 
 import org.springframework.dao.DataAccessException;
@@ -13,6 +14,7 @@ import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Repository
@@ -80,5 +82,18 @@ public class StoreRepository {
         parameters.put("name", name);
         jdbcTemplate.update(query, parameters);
         return this.getById(id);
+    }
+    
+    public List<Stock> getByStoreId(Integer id) throws ModelNotFoundException {
+        String query = "SELECT * " +
+                "FROM STOCK " +
+                "WHERE ID_STORE = :id";
+
+        Map<String, Object> parameters = new HashMap<>();
+        parameters.put("id", id);
+
+        return jdbcTemplate.query(query,
+                parameters,
+                new BeanPropertyRowMapper<>(Stock.class));
     }
 }

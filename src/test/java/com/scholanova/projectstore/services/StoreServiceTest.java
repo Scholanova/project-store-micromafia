@@ -1,6 +1,7 @@
 package com.scholanova.projectstore.services;
 
 import com.scholanova.projectstore.exceptions.StoreNameCannotBeEmptyException;
+import com.scholanova.projectstore.models.Stock;
 import com.scholanova.projectstore.models.Store;
 import com.scholanova.projectstore.repositories.StoreRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -12,6 +13,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
+
+import java.util.ArrayList;
 
 @ExtendWith(MockitoExtension.class)
 class StoreServiceTest {
@@ -110,5 +113,25 @@ class StoreServiceTest {
         // THEN
         verify(storeRepository, atLeastOnce()).deletebyid(id);
         assertThat(returnedStore).isEqualTo(true);
+    }
+    
+    @Test
+    void givenCorrectStoreId_Calculate_Give_Correct_List() throws Exception {
+        // GIVEN
+        Integer id = 1234;
+        Stock one = new Stock(1, "nom", "type", 1, 5);
+        Stock two = new Stock(2, "nom", "type", 2, 5);
+        ArrayList<Stock> arr = new ArrayList();
+        arr.add(one);
+        arr.add(two);
+        
+        when(storeRepository.getByStoreId(id)).thenReturn(arr);
+
+        // WHEN
+        long returnedStore = storeService.calculate_inventory(id);
+        
+        // THEN
+        verify(storeRepository, atLeastOnce()).getByStoreId(id);
+        assertThat(returnedStore).isEqualTo(3);
     }
 }

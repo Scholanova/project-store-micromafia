@@ -54,6 +54,13 @@ public class StoreController {
     	return new ResponseEntity(this.storeService.update(store), HttpStatus.OK);
     }
     
+    @GetMapping(path = "/stores/{id}/inventory_value")
+    public ResponseEntity value_inventory(@PathVariable("id") Integer id) throws StoreNameCannotBeEmptyException, DataAccessException, ModelNotFoundException {
+        if(id == null)
+        	return new ResponseEntity(HttpStatus.BAD_REQUEST);
+    	return new ResponseEntity(this.storeService.calculate_inventory(id), HttpStatus.OK);
+    }
+    
     boolean isIdNull (Store store)
     {
     	return store.getId() == null;
