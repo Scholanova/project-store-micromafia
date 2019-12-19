@@ -27,6 +27,7 @@ class StoreRepositoryTest {
     @AfterEach
     void cleanUp() {
         JdbcTestUtils.deleteFromTables(jdbcTemplate, "STORES");
+        JdbcTestUtils.deleteFromTables(jdbcTemplate, "STOCKS");
     }
 
     @Nested
